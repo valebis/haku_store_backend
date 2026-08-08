@@ -1,0 +1,20 @@
+# Maven
+target/
+
+# Eclipse
+bin/
+.settings/
+.project
+.classpath
+
+# Java
+*.class
+
+# File sensibili
+.env
+application-local.properties
+application-local.yml
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
