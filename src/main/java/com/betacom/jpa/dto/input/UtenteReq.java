@@ -29,10 +29,12 @@ public class UtenteReq {
 	@Email(groups = { ValidationGroups.Create.class, ValidationGroups.Update.class }, message = "utente.email.invalid")
 	private String email;
 
+	@ToString.Exclude
 	@NotNull(groups = ValidationGroups.Create.class, message = "utente.no.password")
 	@Size(min = 8, groups = { ValidationGroups.Create.class, ValidationGroups.Update.class }, message = "utente.password.short")
 	private String password;
 
+	@ToString.Exclude
 	private String telefono;
 
 	private String ruolo;
