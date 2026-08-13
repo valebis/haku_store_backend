@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.betacom.jpa.dto.input.LoginReq;
+import com.betacom.jpa.dto.input.ForgotPasswordReq;
+import com.betacom.jpa.dto.input.ResetPasswordReq;
 import com.betacom.jpa.dto.input.UtenteReq;
+import com.betacom.jpa.dto.output.ResponseDTO;
 import com.betacom.jpa.dto.input.ValidationGroups;
 import com.betacom.jpa.services.interfaces.IAuthServices;
 
@@ -33,5 +36,17 @@ public class AuthController {
 	@PostMapping("login")
 	public ResponseEntity<Object> login(@RequestBody(required = true) @Valid LoginReq req) throws Exception {
 		return ResponseEntity.ok(authS.login(req));
+	}
+
+	@PostMapping("forgot-password")
+	public ResponseEntity<Object> forgotPassword(@RequestBody @Valid ForgotPasswordReq req) {
+		authS.forgotPassword(req);
+		return ResponseEntity.ok(ResponseDTO.builder().msg("Se l'email è registrata, riceverai un link per reimpostare la password.").build());
+	}
+
+	@PostMapping("reset-password")
+	public ResponseEntity<Object> resetPassword(@RequestBody @Valid ResetPasswordReq req) {
+		authS.resetPassword(req);
+		return ResponseEntity.ok(ResponseDTO.builder().msg("Password aggiornata correttamente.").build());
 	}
 }

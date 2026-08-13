@@ -7,6 +7,8 @@ INSERT INTO messaggi_sistema (lang, code, messagio) VALUES
 ('IT', 'auth.unauthorized', 'Devi effettuare il login per accedere a questa risorsa.'),
 ('IT', 'auth.no.email', 'Inserisci l''email.'),
 ('IT', 'auth.no.password', 'Inserisci la password.'),
+('IT', 'auth.reset.token.required', 'Il token di recupero e'' obbligatorio.'),
+('IT', 'auth.reset.token.invalid', 'Il link di recupero non e'' valido oppure e'' scaduto.'),
 
 ('IT', 'utente.ntfnd', 'Utente non trovato.'),
 ('IT', 'utente.forbidden', 'Non puoi modificare i dati di un altro utente.'),

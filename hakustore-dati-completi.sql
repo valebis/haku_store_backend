@@ -213,6 +213,8 @@ INSERT INTO public.messaggi_sistema (lang, code, messagio) VALUES ('IT', 'auth.f
 INSERT INTO public.messaggi_sistema (lang, code, messagio) VALUES ('IT', 'auth.unauthorized', 'Devi effettuare il login per accedere a questa risorsa.');
 INSERT INTO public.messaggi_sistema (lang, code, messagio) VALUES ('IT', 'auth.no.email', 'Inserisci l''email.');
 INSERT INTO public.messaggi_sistema (lang, code, messagio) VALUES ('IT', 'auth.no.password', 'Inserisci la password.');
+INSERT INTO public.messaggi_sistema (lang, code, messagio) VALUES ('IT', 'auth.reset.token.required', 'Il token di recupero è obbligatorio.');
+INSERT INTO public.messaggi_sistema (lang, code, messagio) VALUES ('IT', 'auth.reset.token.invalid', 'Il link di recupero non è valido oppure è scaduto.');
 INSERT INTO public.messaggi_sistema (lang, code, messagio) VALUES ('IT', 'utente.ntfnd', 'Utente non trovato.');
 INSERT INTO public.messaggi_sistema (lang, code, messagio) VALUES ('IT', 'utente.forbidden', 'Non puoi modificare i dati di un altro utente.');
 INSERT INTO public.messaggi_sistema (lang, code, messagio) VALUES ('IT', 'utente.email.exists', 'Esiste già un utente con questa email.');
@@ -370,4 +372,3 @@ SELECT pg_catalog.setval('public.variante_prodotto_id_variante_seq', 94, false);
 --
 
 \unrestrict CjiFvM84FGfi75EpLJNzIYc7Qecimw0sG9Co8Ii4DEfz3hU7y1BG1Vt9cZDV7WX
-
