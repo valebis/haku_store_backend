@@ -5,7 +5,9 @@ import java.util.Optional;
 
 // import di Spring Data JPA (repository generico, query custom) e dell'entity da gestire
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.betacom.jpa.models.VarianteProdotto;
@@ -28,4 +30,16 @@ public interface IVarianteProdottoRepository extends JpaRepository<VarianteProdo
 	// varianti tornate disponibili dopo essere state esaurite, dalla più recente, per la sezione "Nuovamente disponibile" della home
 	@Query(name = "variante.selectNuovamenteDisponibili")
 	List<VarianteProdotto> selectNuovamenteDisponibili();
+
+	// Controlla e decrementa lo stock in un'unica operazione atomica sul database.
+	@Modifying(flushAutomatically = true)
+	@Query("""
+			UPDATE VarianteProdotto v
+			SET v.quantitaDisponibile = v.quantitaDisponibile - :quantita
+			WHERE v.idVariante = :idVariante
+			  AND v.quantitaDisponibile >= :quantita
+			""")
+	int decrementaStock(
+			@Param("idVariante") Integer idVariante,
+			@Param("quantita") Integer quantita);
 }

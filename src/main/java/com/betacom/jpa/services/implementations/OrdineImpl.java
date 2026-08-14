@@ -3,6 +3,7 @@ package com.betacom.jpa.services.implementations;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +32,7 @@ import com.betacom.jpa.services.interfaces.ICarrelloServices;
 import com.betacom.jpa.services.interfaces.ICouponServices;
 import com.betacom.jpa.services.interfaces.IOrdineServices;
 
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +50,7 @@ public class OrdineImpl implements IOrdineServices {
 	private final IDettaglioCarrelloRepository repDetCar;
 	private final ICarrelloServices carrelloS;
 	private final ICouponServices couponS;
+	private final EntityManager entityManager;
 
 	@Transactional
 	@Override
@@ -62,13 +65,6 @@ public class OrdineImpl implements IOrdineServices {
 				.orElseThrow(() -> new ApiException("indirizzo.ntfnd"));
 		if (!ind.getUtente().getIdUtente().equals(idUtente))
 			throw new ApiException("indirizzo.ntfnd");
-
-		List<String> insufficienti = car.getRighe().stream()
-				.filter(r -> r.getVariante().getQuantitaDisponibile() < r.getQuantita())
-				.map(r -> String.valueOf(r.getVariante().getIdVariante()))
-				.toList();
-		if (!insufficienti.isEmpty())
-			throw new ApiException("variante.stock.insufficient");
 
 		Coupon coupon = car.getCoupon() == null ? null : couponS.validateAndGet(car.getCoupon().getCodice(), idUtente);
 
@@ -96,9 +92,23 @@ public class OrdineImpl implements IOrdineServices {
 		ordine.setRighe(new ArrayList<>());
 		repOrd.save(ordine);
 
-		List<DettaglioCarrello> righeCarrello = List.copyOf(car.getRighe());
+		// Un ordine stabile di acquisizione dei lock riduce il rischio di deadlock
+		// quando due checkout contengono piu' varianti in comune.
+		List<DettaglioCarrello> righeCarrello = car.getRighe().stream()
+				.sorted(Comparator.comparing(r -> r.getVariante().getIdVariante()))
+				.toList();
 		for (DettaglioCarrello rigaCar : righeCarrello) {
 			VarianteProdotto var = rigaCar.getVariante();
+
+			int righeAggiornate = repVar.decrementaStock(
+					var.getIdVariante(),
+					rigaCar.getQuantita());
+			if (righeAggiornate == 0)
+				throw new ApiException("variante.stock.insufficient");
+
+			// Le query UPDATE JPQL non aggiornano automaticamente l'entity gia'
+			// caricata: refresh riallinea lo stock usato nel DTO di risposta.
+			entityManager.refresh(var);
 
 			DettaglioOrdine rigaOrd = new DettaglioOrdine();
 			rigaOrd.setOrdine(ordine);
@@ -107,9 +117,6 @@ public class OrdineImpl implements IOrdineServices {
 			rigaOrd.setPrezzoUnitario(var.getPrezzo());
 			repDetOrd.save(rigaOrd);
 			ordine.getRighe().add(rigaOrd);
-
-			var.setQuantitaDisponibile(var.getQuantitaDisponibile() - rigaCar.getQuantita());
-			repVar.save(var);
 		}
 
 		repDetCar.deleteAll(righeCarrello);
